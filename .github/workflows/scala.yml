@@ -5,11 +5,13 @@
 
 name: Scala CI
 
+# Trigger on push to master branch or manual dispatch
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
