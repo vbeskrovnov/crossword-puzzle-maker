@@ -8,7 +8,11 @@ object HtmlRenderer:
   case class WordInfo(index: Int, vertical: Boolean, word: String)
   case class AnnotationInfo(x: Int, y: Int, words: Seq[WordInfo])
   case class ConfigInfo(width: Int, height: Int, wrapping: Boolean)
-  case class PuzzleJson(grid: Array[String], annotations: Array[AnnotationInfo], config: ConfigInfo, words: Array[String], density: Double)
+  case class PuzzleJson(
+    grid: Array[String],
+    clues: Map[String, String],
+    difficulty: String
+  )
 
   given ReadWriter[WordInfo] = macroRW[WordInfo]
   given ReadWriter[AnnotationInfo] = macroRW[AnnotationInfo]
@@ -106,41 +110,28 @@ object HtmlRenderer:
     infoText + unusedInfoText
 
 
-  /** @return JSON representation of the puzzle including grid, words, and annotations */
+  /** @return JSON representation of the puzzle including grid and clues */
   def renderPuzzleJson(puzzle: Puzzle): String =
     val grid = (0 until puzzle.config.height).map { y =>
       (0 until puzzle.config.width).map { x =>
-        puzzle.getChar(x, y)
+        puzzle.getChar(x, y) match {
+          case ' ' => '.'
+          case char => char
+        }
       }.mkString
     }.toArray
 
     val annotation = puzzle.getAnnotation
-    val annotations = annotation.map { case (point, points) =>
-      AnnotationInfo(
-        x = point.x,
-        y = point.y,
-        words = points.map { p =>
-          WordInfo(
-            index = p.index,
-            vertical = p.vertical,
-            word = p.word
-          )
-        }
-      )
-    }.toArray
+    val clues = annotation.values.flatten.map { wordInfo =>
+      wordInfo.word -> s"Clue for ${wordInfo.word}" // You'll need to provide actual clues here
+    }.toMap
 
-    val config = ConfigInfo(
-      width = puzzle.config.width,
-      height = puzzle.config.height,
-      wrapping = puzzle.config.wrapping
-    )
+    val difficulty = if (puzzle.density > 0.8) "Hard" else if (puzzle.density > 0.6) "Medium" else "Easy"
 
     val result = PuzzleJson(
       grid = grid,
-      annotations = annotations,
-      config = config,
-      words = puzzle.words.toArray,
-      density = puzzle.density
+      clues = clues,
+      difficulty = difficulty
     )
 
     write(result)
