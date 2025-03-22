@@ -7,7 +7,7 @@ import upickle.default.*
  * @param height the number of vertical characters in the puzzle
  * @param wrapping true if the puzzle should wrap around horizontally.
                    can be used for puzzles that wrap around e.g. a cylinder horizontally. */
-case class PuzzleConfig(width: Int = 18, height: Int = 18,
+case class PuzzleConfig(width: Int = 10, height: Int = 10,
                         wrapping: Boolean = false
                        )
 

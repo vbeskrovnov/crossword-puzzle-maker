@@ -15,19 +15,23 @@
 </head>
 
 <body>
-<div class="container">
-    <h1>Crossword Puzzle Generator</h1>
+    <script>
+        // Load API key from localStorage
+        var huggingFaceApiKey = localStorage.getItem('huggingFaceApiKey');
+    </script>
+    <div class="container">
+        <h1>Crossword Puzzle Generator</h1>
 
-    <div class="row print-hidden">
-        <div class="col-lg-6">
+        <div class="row print-hidden">
+            <div class="col-lg-6">
 
-            <h2><i class="bi bi-1-circle"></i> Enter Your Words</h2>
-            <div class="mb-3">
-                <label for="input" class="form-label">
-                    These words will be used to create your crossword puzzle.
-                    A minimum of 20 words is recommended, the more, the better!
-                </label>
-                <textarea class="form-control" id="input" rows="10">
+                <h2><i class="bi bi-1-circle"></i> Enter Your Words</h2>
+                <div class="mb-3">
+                    <label for="input" class="form-label">
+                        These words will be used to create your crossword puzzle.
+                        A minimum of 20 words is recommended, the more, the better!
+                    </label>
+                    <textarea class="form-control" id="input" rows="10">
 Artichoke
 Asparagus
 Aubergene
@@ -72,111 +76,152 @@ Tomatillo
 Tomatoes
 Turnips
 Zucchini
-                </textarea>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <h2><i class="bi bi-2-circle"></i> Choose Size</h2>
-            <label for="width" class="form-label">Specify width and height (maximum = 30x30):</label>
-            <div class="input-group mb-3">
-                <input id="width" type="number" class="form-control" aria-label="Width" value="10">
-                <span class="input-group-text">x</span>
-                <input id="height" type="number" class="form-control" aria-label="Height" value="8">
-            </div>
-
-            <button type="button" class="btn btn-primary" id="generate-button">Generate Puzzle</button>
-            <div class="spinner-border text-primary invisible" id="generate-spinner" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row invisible" id="result-row">
-        <div class="col">
-
-            <h2 class="print-hidden"><i class="bi bi-3-circle"></i> Result</h2>
-            <p class="print-hidden">
-                Here is a first version of your new puzzle. Not all words from your list may be used.
-                This is intentional: the tool tries to create the puzzle with the most letters possible (or least whitespace).
-                The available size you specified might not be enough to fit all the words. If you want to include more words, you can increase the size.
-            </p>
-
-            <div class="alert alert-info print-hidden" role="alert" id="result-info">
-                Info
-            </div>
-
-            <div class="row print-hidden">
-                <div class="col-lg-12" style="text-align: right">
-                    <button type="button" class="btn btn-secondary" id="print-button"><i class="bi bi-printer-fill"></i> Print</button>
+                    </textarea>
                 </div>
             </div>
 
-            <div id="output-puzzle" class="mb-3"></div>
-
-        </div>
-    </div>
-
-    <div class="row print-hidden invisible" id="json-row">
-        <div class="col">
-            <h2><i class="bi bi-6-circle"></i> JSON Representation</h2>
-            <p>
-                Here is the JSON representation of the puzzle that you can use for programmatic access.
-                The JSON includes the grid layout, word positions, and puzzle configuration.
-            </p>
-            <div class="d-flex gap-2 mb-2">
-                <button type="button" class="btn btn-primary" id="download-json-button">
-                    <i class="bi bi-download"></i> Download JSON
-                </button>
-            </div>
-            <textarea class="form-control" id="output-json" rows="10" readonly></textarea>
-        </div>
-    </div>
-
-    <div class="row print-hidden invisible" id="refine-row">
-        <div class="col">
-
-            <h2><i class="bi bi-4-circle"></i> Add additional words from a dictionary <span class="text-muted">(Optional)</span></h2>
-            <p>You can add more words from a dictionary to your puzzle to fill any gaps. Choose from one of the available dictionaries:</p>
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <select class="form-control" id="language-select">
-                            <option value="en">English</option>
-                            <option value="de">German</option>
-                        </select>
+            <div class="col-lg-6">
+                <h2><i class="bi bi-2-circle"></i> Configure Your Puzzle</h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="width">Width</label>
+                            <input type="number" class="form-control" id="width" value="10">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="height">Height</label>
+                            <input type="number" class="form-control" id="height" value="10">
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <button type="button" class="btn btn-primary" id="refine-button">Refine Puzzle</button>
+                <div class="form-group mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enable-llm-clues">
+                        <label class="form-check-label" for="enable-llm-clues">
+                            Generate AI-powered clues (requires Hugging Face API key)
+                        </label>
+                    </div>
+                    <div class="input-group mt-2 invisible" id="api-key-row">
+                        <input type="password" id="api-key" class="form-control" placeholder="Hugging Face API Key" value="">
+                        <button class="btn btn-outline-secondary" type="button" onclick="updateApiKey()">Save API Key</button>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <button type="button" class="btn btn-primary" id="generate-button">Generate Puzzle</button>
+                    <div id="generate-spinner" class="spinner-border text-primary invisible" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
-            <p>(click multiple times for different results)</p>
-
         </div>
+
+        <div class="row invisible" id="result-row">
+            <div class="col">
+                <h2 class="print-hidden"><i class="bi bi-3-circle"></i> Result</h2>
+                <p class="print-hidden">
+                    Here is a first version of your new puzzle. Not all words from your list may be used.
+                    This is intentional: the tool tries to create the puzzle with the most letters possible (or least whitespace).
+                    The available size you specified might not be enough to fit all the words. If you want to include more words, you can increase the size.
+                </p>
+
+                <div class="alert alert-info print-hidden" role="alert" id="result-info">
+                    Info
+                </div>
+
+                <div class="row print-hidden">
+                    <div class="col-lg-12" style="text-align: right">
+                        <button type="button" class="btn btn-secondary" id="print-button"><i class="bi bi-printer-fill"></i> Print</button>
+                    </div>
+                </div>
+
+                <div id="output-puzzle" class="mb-3"></div>
+            </div>
+        </div>
+
+        <div class="row print-hidden invisible" id="json-row">
+            <div class="col">
+                <h2><i class="bi bi-6-circle"></i> JSON Representation</h2>
+                <p>
+                    Here is the JSON representation of the puzzle that you can use for programmatic access.
+                    The JSON includes the grid layout, word positions, and puzzle configuration.
+                </p>
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-primary" id="download-json-button">
+                        <i class="bi bi-download"></i> Download JSON
+                    </button>
+                </div>
+                <textarea class="form-control" id="output-json" rows="10" readonly></textarea>
+            </div>
+        </div>
+
+        <div class="row print-hidden invisible" id="refine-row">
+            <div class="col">
+
+                <h2><i class="bi bi-4-circle"></i> Add additional words from a dictionary <span class="text-muted">(Optional)</span></h2>
+                <p>You can add more words from a dictionary to your puzzle to fill any gaps. Choose from one of the available dictionaries:</p>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <select class="form-control" id="language-select">
+                                <option value="en">English</option>
+                                <option value="de">German</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="button" class="btn btn-primary" id="refine-button">Refine Puzzle</button>
+                    </div>
+                </div>
+                <p>(click multiple times for different results)</p>
+
+            </div>
+        </div>
+
+        <div class="row invisible" id="clues-row">
+            <div class="col">
+
+                <h2><i class="bi bi-5-circle print-hidden"></i> Solution & Clues</h2>
+                <p>
+                    This is the puzzle solution. You can use it to write the clues for the puzzle.
+                    Copy the following list into a text editor and replace the words with hints.
+                </p>
+                <div id="output-clues"></div>
+
+            </div>
+        </div>
+
     </div>
 
-    <div class="row invisible" id="clues-row">
-        <div class="col">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <script src="./data/croisee/german.js"></script>
+    <script src="./data/croisee/english.js"></script>
+    <script src="./js/main.js"></script>
+    <script type="text/javascript">UIMain.main();</script>
 
-            <h2><i class="bi bi-5-circle print-hidden"></i> Solution & Clues</h2>
-            <p>
-                This is the puzzle solution. You can use it to write the clues for the puzzle.
-                Copy the following list into a text editor and replace the words with hints.
-            </p>
-            <div id="output-clues"></div>
-
-        </div>
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-<script src="./data/croisee/german.js"></script>
-<script src="./data/croisee/english.js"></script>
-<script src="./js/main.js"></script>
-<script type="text/javascript">UIMain.main();</script>
+    <script>
+        // Initialize API key input and checkbox handling
+        document.getElementById('api-key').value = huggingFaceApiKey || '';
+        document.getElementById('enable-llm-clues').addEventListener('change', function() {
+            const apiKeyRow = document.getElementById('api-key-row');
+            if (this.checked && !huggingFaceApiKey) {
+                apiKeyRow.classList.remove('invisible');
+            } else {
+                apiKeyRow.classList.add('invisible');
+            }
+        });
+        
+        function updateApiKey() {
+            const newKey = document.getElementById('api-key').value;
+            if (newKey) {
+                huggingFaceApiKey = newKey;
+                localStorage.setItem('huggingFaceApiKey', newKey);
+                alert('API key saved successfully!');
+                document.getElementById('api-key-row').classList.add('invisible');
+            }
+        }
+    </script>
 
 </body>
 </html>

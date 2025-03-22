@@ -1,8 +1,11 @@
 package com.papauschek.ui
 
 import com.papauschek.puzzle.{Point, Puzzle}
+import com.papauschek.service.{LLMService, ClueRequest}
 import org.scalajs.dom
 import upickle.default.{Writer, write, macroRW, ReadWriter}
+import scala.concurrent.{Future, Promise}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object HtmlRenderer:
   case class WordInfo(index: Int, vertical: Boolean, word: String)
@@ -105,7 +108,7 @@ object HtmlRenderer:
 
 
   /** @return JSON representation of the puzzle including grid and clues */
-  def renderPuzzleJson(puzzle: Puzzle): String =
+  def renderPuzzleJson(puzzle: Puzzle, llmService: Option[LLMService] = None): Future[String] = {
     val grid = (0 until puzzle.config.height).map { y =>
       (0 until puzzle.config.width).map { x =>
         puzzle.getChar(x, y) match {
@@ -116,17 +119,33 @@ object HtmlRenderer:
     }.toArray
 
     val annotation = puzzle.getAnnotation
-    val clues = annotation.values.flatten.map { wordInfo =>
-      wordInfo.word -> s"Clue for ${wordInfo.word}" // You'll need to provide actual clues here
-    }.toMap
+    val wordInfos = annotation.values.flatten.toSeq
+
+    // If LLM service is provided, generate clues for each word
+    val cluesFuture = llmService match {
+      case Some(service) =>
+        // Generate clues for all words in parallel
+        Future.sequence(wordInfos.map { wordInfo =>
+          val difficulty = if (puzzle.density > 0.8) "Hard" else if (puzzle.density > 0.6) "Medium" else "Easy"
+          service.generateClue(ClueRequest(wordInfo.word, difficulty))
+            .map(response => wordInfo.word -> response.clue)
+        }).map(_.toMap)
+      case None =>
+        // Fallback to placeholder clues if no LLM service
+        Future.successful(wordInfos.map { wordInfo =>
+          wordInfo.word -> s"Clue for ${wordInfo.word}"
+        }.toMap)
+    }
 
     val difficulty = if (puzzle.density > 0.8) "Hard" else if (puzzle.density > 0.6) "Medium" else "Easy"
 
-    val result = PuzzleJson(
-      grid = grid,
-      clues = clues,
-      difficulty = difficulty
-    )
-
-    write(result, indent = 2)
+    cluesFuture.map { clues =>
+      val result = PuzzleJson(
+        grid = grid,
+        clues = clues,
+        difficulty = difficulty
+      )
+      write(result, indent = 2)
+    }
+  }
 

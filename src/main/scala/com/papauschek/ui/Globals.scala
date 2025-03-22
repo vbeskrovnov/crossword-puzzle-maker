@@ -10,6 +10,9 @@ object Globals extends js.Object:
   /** the Browser window */
   def window: Window = js.native
 
+  /** Hugging Face API key */
+  def huggingFaceApiKey: String = js.native
+
 
 @js.native
 trait Window extends js.Object:

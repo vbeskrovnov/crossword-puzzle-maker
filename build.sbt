@@ -8,7 +8,8 @@ scalaVersion := "3.2.0"
 
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "2.1.0",
-  "com.lihaoyi" %%% "upickle" % "2.0.0"
+  "com.lihaoyi" %%% "upickle" % "2.0.0",
+  "com.lihaoyi" %%% "ujson" % "2.0.0"
 )
 
 // Output Directory for Main Javascript Application

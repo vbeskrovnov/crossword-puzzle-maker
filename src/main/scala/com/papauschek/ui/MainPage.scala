@@ -1,6 +1,7 @@
 package com.papauschek.ui
 
 import com.papauschek.puzzle.{Puzzle, PuzzleConfig, PuzzleWords}
+import com.papauschek.service.LLMService
 import com.papauschek.ui.{Globals, HtmlRenderer}
 import org.scalajs.dom
 import org.scalajs.dom.Worker
@@ -16,12 +17,14 @@ class MainPage:
   private var refinedPuzzle: Puzzle = initialPuzzle
 
   private var mainInputWords: Seq[String] = Nil
+  private var llmService: Option[LLMService] = None
 
   private val inputElement = dom.document.getElementById("input").asInstanceOf[TextArea]
   private val outputPuzzleElement = dom.document.getElementById("output-puzzle")
   private val outputCluesElement = dom.document.getElementById("output-clues")
   private val resultInfoElement = dom.document.getElementById("result-info")
   private val outputJsonElement = dom.document.getElementById("output-json").asInstanceOf[TextArea]
+  private val enableLLMCluesCheckbox = dom.document.getElementById("enable-llm-clues").asInstanceOf[Input]
 
   private val generateButton = dom.document.getElementById("generate-button").asInstanceOf[Button]
   private val generateSpinner = dom.document.getElementById("generate-spinner").asInstanceOf[Div]
@@ -108,7 +111,16 @@ class MainPage:
 
   /** generate and display the JSON representation of the puzzle */
   private def generateJson(): Unit =
-    outputJsonElement.value = HtmlRenderer.renderPuzzleJson(refinedPuzzle)
+    val apiKey = if (enableLLMCluesCheckbox.checked) {
+      val key = Globals.huggingFaceApiKey
+      if (key.nonEmpty) {
+        llmService = Some(new LLMService(key))
+        llmService
+      } else None
+    } else None
+    HtmlRenderer.renderPuzzleJson(refinedPuzzle, apiKey).foreach { json =>
+      outputJsonElement.value = json
+    }
 
   /** download the JSON representation of the puzzle as a file */
   private def downloadJson(): Unit =
