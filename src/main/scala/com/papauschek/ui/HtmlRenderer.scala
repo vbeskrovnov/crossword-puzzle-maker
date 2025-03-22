@@ -134,5 +134,5 @@ object HtmlRenderer:
       difficulty = difficulty
     )
 
-    write(result)
+    write(result, indent = 2)
 
