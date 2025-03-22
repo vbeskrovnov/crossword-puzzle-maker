@@ -32,6 +32,7 @@ class MainPage:
   private val languageSelect = dom.document.getElementById("language-select").asInstanceOf[Select]
   private val refineButton = dom.document.getElementById("refine-button").asInstanceOf[Button]
   private val printButton = dom.document.getElementById("print-button").asInstanceOf[Button]
+  private val replaceUnusedButton = dom.document.getElementById("replace-unused-button").asInstanceOf[Button]
 
   private val resultRow = dom.document.getElementById("result-row").asInstanceOf[Div]
   private val refineRow = dom.document.getElementById("refine-row").asInstanceOf[Div]
@@ -43,6 +44,7 @@ class MainPage:
   refineButton.addEventListener("click", { _ => refineSolution() })
   printButton.addEventListener("click", { _ => printSolution() })
   downloadJsonButton.addEventListener("click", { _ => downloadJson() })
+  replaceUnusedButton.addEventListener("click", { _ => replaceWithUnusedWords() })
 
   /** read the words from the user interface and generate the puzzle in the background using web workers */
   def generateSolution(): Unit =
@@ -135,4 +137,11 @@ class MainPage:
       replace("Ö", "OE").
       replace("Ü", "UE").
       replace("ß", "SS")
+
+  /** replace the input with unused words from the current puzzle */
+  private def replaceWithUnusedWords(): Unit =
+    val unusedWords = mainInputWords.filterNot(refinedPuzzle.words.contains)
+    if (unusedWords.nonEmpty) {
+      inputElement.value = unusedWords.mkString("\n")
+    }
 
