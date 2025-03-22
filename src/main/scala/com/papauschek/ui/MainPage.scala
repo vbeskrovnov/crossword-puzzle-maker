@@ -65,7 +65,7 @@ class MainPage:
       generateSpinner.classList.remove("invisible")
       generateButton.classList.add("invisible")
 
-      PuzzleGenerator.send(NewPuzzleMessage(puzzleConfig, mainInputWords)).foreach {
+      PuzzleGenerator.send(NewPuzzleMessage(puzzleConfig, mainInputWords)).map {
         puzzles =>
           generateSpinner.classList.add("invisible")
           generateButton.classList.remove("invisible")
@@ -76,6 +76,17 @@ class MainPage:
           initialPuzzle = puzzles.maxBy(_.density)
           refinedPuzzle = initialPuzzle
           renderSolution()
+      }.recover {
+        case e: IllegalArgumentException =>
+          generateSpinner.classList.add("invisible")
+          generateButton.classList.remove("invisible")
+          resultInfoElement.innerHTML = s"""<div class="alert alert-danger" role="alert">
+            |  ${e.getMessage}
+            |</div>""".stripMargin
+          resultRow.classList.add("invisible")
+          refineRow.classList.add("invisible")
+          cluesRow.classList.add("invisible")
+          jsonRow.classList.add("invisible")
       }
     }
 

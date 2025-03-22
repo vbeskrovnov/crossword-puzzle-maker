@@ -27,14 +27,17 @@ object WorkerMain:
    * - note: this is a CPU intensive process, as we generate many possible puzzles and select the best one based on density
    * - this process is distributed across multiple web workers to spread the CPU-load and keep the UI responsive. */
   private def createPuzzle(config: PuzzleConfig, mainWords: Seq[String]): Puzzle =
-    val minSize = mainWords.maxByOption(_.length).map(_.length).getOrElse(1)
-    val minConfig = config.copy(width = config.width.max(minSize), height = config.height.max(minSize))
+    // Filter out words that are too long for the chosen size
+    val validWords = mainWords.filter(word => word.length <= config.width && word.length <= config.height)
+    if (validWords.isEmpty) {
+      throw new IllegalArgumentException("No words fit in the chosen puzzle size. Please increase the size or use shorter words.")
+    }
     val start = System.currentTimeMillis()
     var bestRating = 0.0
     var count = 0
     val puzzles = (0 until 1000).flatMap {
       _ =>
-        val puzzles = Puzzle.generate(mainWords.head, mainWords.tail.toList, minConfig)
+        val puzzles = Puzzle.generate(validWords.head, validWords.tail.toList, config)
         val puzzle = puzzles.maxBy(_.density)
         count += 1
         if (puzzle.density > bestRating) {
