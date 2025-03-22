@@ -21,6 +21,8 @@ class MainPage:
   private val outputPuzzleElement = dom.document.getElementById("output-puzzle")
   private val outputCluesElement = dom.document.getElementById("output-clues")
   private val resultInfoElement = dom.document.getElementById("result-info")
+  private val outputJsonElement = dom.document.getElementById("output-json").asInstanceOf[TextArea]
+  private val showJsonButton = dom.document.getElementById("show-json-button").asInstanceOf[Button]
 
   private val generateButton = dom.document.getElementById("generate-button").asInstanceOf[Button]
   private val generateSpinner = dom.document.getElementById("generate-spinner").asInstanceOf[Div]
@@ -39,10 +41,12 @@ class MainPage:
   private val resultRow = dom.document.getElementById("result-row").asInstanceOf[Div]
   private val refineRow = dom.document.getElementById("refine-row").asInstanceOf[Div]
   private val cluesRow = dom.document.getElementById("clues-row").asInstanceOf[Div]
+  private val jsonRow = dom.document.getElementById("json-row").asInstanceOf[Div]
   
   generateButton.addEventListener("click", { _ => generateSolution() })
   refineButton.addEventListener("click", { _ => refineSolution() })
   printButton.addEventListener("click", { _ => printSolution() })
+  showJsonButton.addEventListener("click", { _ => showJsonOutput() })
 
   resultWithoutElement.addEventListener("click", { _ => renderSolution() })
   resultPartialElement.addEventListener("click", { _ => renderSolution() })
@@ -68,6 +72,7 @@ class MainPage:
           resultRow.classList.remove("invisible")
           refineRow.classList.remove("invisible")
           cluesRow.classList.remove("invisible")
+          jsonRow.classList.remove("invisible")
           initialPuzzle = puzzles.maxBy(_.density)
           refinedPuzzle = initialPuzzle
           renderSolution()
@@ -100,6 +105,10 @@ class MainPage:
   /** show the print dialog */
   def printSolution(): Unit =
     dom.window.print()
+
+  /** show the JSON representation of the puzzle */
+  def showJsonOutput(): Unit =
+    outputJsonElement.value = HtmlRenderer.renderPuzzleJson(refinedPuzzle)
 
   /** normalize words and expand german umlauts */
   private def normalizeWord(word: String): String =

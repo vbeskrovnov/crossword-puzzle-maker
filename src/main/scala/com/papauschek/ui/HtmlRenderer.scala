@@ -2,8 +2,18 @@ package com.papauschek.ui
 
 import com.papauschek.puzzle.{Point, Puzzle}
 import org.scalajs.dom
+import upickle.default.{Writer, write, macroRW, ReadWriter}
 
 object HtmlRenderer:
+  case class WordInfo(index: Int, vertical: Boolean, word: String)
+  case class AnnotationInfo(x: Int, y: Int, words: Seq[WordInfo])
+  case class ConfigInfo(width: Int, height: Int, wrapping: Boolean)
+  case class PuzzleJson(grid: Array[String], annotations: Array[AnnotationInfo], config: ConfigInfo, words: Array[String], density: Double)
+
+  given ReadWriter[WordInfo] = macroRW[WordInfo]
+  given ReadWriter[AnnotationInfo] = macroRW[AnnotationInfo]
+  given ReadWriter[ConfigInfo] = macroRW[ConfigInfo]
+  given ReadWriter[PuzzleJson] = macroRW[PuzzleJson]
 
   /** @return HTML for rendering a puzzle
    * @param puzzle the puzzle to render
@@ -94,4 +104,44 @@ object HtmlRenderer:
       s"If you prefer a more dense puzzle, add more words to the list above and let the tool discard the words that do not fit well. "
     val unusedInfoText = Option.when(unusedWords.nonEmpty)(s"The following words from your list were NOT used: ${unusedWords.mkString(", ")}").mkString
     infoText + unusedInfoText
+
+
+  /** @return JSON representation of the puzzle including grid, words, and annotations */
+  def renderPuzzleJson(puzzle: Puzzle): String =
+    val grid = (0 until puzzle.config.height).map { y =>
+      (0 until puzzle.config.width).map { x =>
+        puzzle.getChar(x, y)
+      }.mkString
+    }.toArray
+
+    val annotation = puzzle.getAnnotation
+    val annotations = annotation.map { case (point, points) =>
+      AnnotationInfo(
+        x = point.x,
+        y = point.y,
+        words = points.map { p =>
+          WordInfo(
+            index = p.index,
+            vertical = p.vertical,
+            word = p.word
+          )
+        }
+      )
+    }.toArray
+
+    val config = ConfigInfo(
+      width = puzzle.config.width,
+      height = puzzle.config.height,
+      wrapping = puzzle.config.wrapping
+    )
+
+    val result = PuzzleJson(
+      grid = grid,
+      annotations = annotations,
+      config = config,
+      words = puzzle.words.toArray,
+      density = puzzle.density
+    )
+
+    write(result)
 
