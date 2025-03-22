@@ -21,23 +21,17 @@ object HtmlRenderer:
 
   /** @return HTML for rendering a puzzle
    * @param puzzle the puzzle to render
-   * @param showSolution if true, shows the solution (all characters) of the puzzle
-   * @param showPartialSolution if true, shows some randomly selected solution characters of the puzzle (but not all of them) */
+   * @param showSolution if true, shows the solution (all characters) of the puzzle */
   def renderPuzzle(puzzle: Puzzle,
-                   showSolution: Boolean = false,
-                   showPartialSolution: Boolean = false): String =
+                   showSolution: Boolean = false): String =
 
     val annotation = puzzle.getAnnotation
-
-    val partialPoints = puzzle.getCharsShownInPartialSolution()
 
     def renderCell(x: Int, y: Int): String =
       puzzle.getChar(x, y) match {
         case ' ' => ""
         case char =>
-
-          val showLetter = showSolution || (showPartialSolution && partialPoints.contains(Point(x, y)))
-          val svgLetter = Option.when(showLetter) {
+          val svgLetter = Option.when(showSolution) {
             s"""<text x="${x * 10 + 4.5}" y="${(y + 1) * 10 - 2}" text-anchor="middle" class="letter">$char</text>"""
           }
 

@@ -22,14 +22,9 @@ class MainPage:
   private val outputCluesElement = dom.document.getElementById("output-clues")
   private val resultInfoElement = dom.document.getElementById("result-info")
   private val outputJsonElement = dom.document.getElementById("output-json").asInstanceOf[TextArea]
-  private val showJsonButton = dom.document.getElementById("show-json-button").asInstanceOf[Button]
 
   private val generateButton = dom.document.getElementById("generate-button").asInstanceOf[Button]
   private val generateSpinner = dom.document.getElementById("generate-spinner").asInstanceOf[Div]
-
-  private val resultWithoutElement = dom.document.getElementById("result-without").asInstanceOf[Input]
-  private val resultPartialElement = dom.document.getElementById("result-partial").asInstanceOf[Input]
-  private val resultFullElement = dom.document.getElementById("result-full").asInstanceOf[Input]
 
   private val widthInputElement = dom.document.getElementById("width").asInstanceOf[Input]
   private val heightInputElement = dom.document.getElementById("height").asInstanceOf[Input]
@@ -46,11 +41,6 @@ class MainPage:
   generateButton.addEventListener("click", { _ => generateSolution() })
   refineButton.addEventListener("click", { _ => refineSolution() })
   printButton.addEventListener("click", { _ => printSolution() })
-  showJsonButton.addEventListener("click", { _ => showJsonOutput() })
-
-  resultWithoutElement.addEventListener("click", { _ => renderSolution() })
-  resultPartialElement.addEventListener("click", { _ => renderSolution() })
-  resultFullElement.addEventListener("click", { _ => renderSolution() })
 
   /** read the words from the user interface and generate the puzzle in the background using web workers */
   def generateSolution(): Unit =
@@ -76,6 +66,7 @@ class MainPage:
           initialPuzzle = puzzles.maxBy(_.density)
           refinedPuzzle = initialPuzzle
           renderSolution()
+          generateJson()
       }.recover {
         case e: IllegalArgumentException =>
           generateSpinner.classList.add("invisible")
@@ -93,13 +84,9 @@ class MainPage:
 
   /** show the generated puzzle */
   def renderSolution(): Unit =
-    val showPartialSolution = resultPartialElement.checked
-    val showFullSolution = resultFullElement.checked
-
     outputPuzzleElement.innerHTML = HtmlRenderer.renderPuzzle(
       refinedPuzzle,
-      showSolution = showFullSolution,
-      showPartialSolution = showPartialSolution)
+      showSolution = true)
 
     val unusedWords = mainInputWords.filterNot(refinedPuzzle.words.contains)
     val extraWords = refinedPuzzle.words -- initialPuzzle.words
@@ -117,8 +104,8 @@ class MainPage:
   def printSolution(): Unit =
     dom.window.print()
 
-  /** show the JSON representation of the puzzle */
-  def showJsonOutput(): Unit =
+  /** generate and display the JSON representation of the puzzle */
+  private def generateJson(): Unit =
     outputJsonElement.value = HtmlRenderer.renderPuzzleJson(refinedPuzzle)
 
   /** normalize words and expand german umlauts */

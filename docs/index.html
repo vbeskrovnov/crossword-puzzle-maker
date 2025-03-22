@@ -80,9 +80,9 @@ Zucchini
             <h2><i class="bi bi-2-circle"></i> Choose Size</h2>
             <label for="width" class="form-label">Specify width and height (maximum = 30x30):</label>
             <div class="input-group mb-3">
-                <input id="width" type="number" class="form-control" aria-label="Width" value="12">
+                <input id="width" type="number" class="form-control" aria-label="Width" value="10">
                 <span class="input-group-text">x</span>
-                <input id="height" type="number" class="form-control" aria-label="Height" value="12">
+                <input id="height" type="number" class="form-control" aria-label="Height" value="8">
             </div>
 
             <button type="button" class="btn btn-primary" id="generate-button">Generate Puzzle</button>
@@ -108,25 +108,24 @@ Zucchini
             </div>
 
             <div class="row print-hidden">
-                <div class="col-lg-6">
-                    <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" class="btn-check" name="btnradio" id="result-without" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="result-without">Without Solution</label>
-
-                        <input type="radio" class="btn-check" name="btnradio" id="result-partial" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="result-partial">Partial Solution</label>
-
-                        <input type="radio" class="btn-check" name="btnradio" id="result-full" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="result-full">Full Solution</label>
-                    </div>
-                </div>
-                <div class="col-lg-6" style="text-align: right">
+                <div class="col-lg-12" style="text-align: right">
                     <button type="button" class="btn btn-secondary" id="print-button"><i class="bi bi-printer-fill"></i> Print</button>
                 </div>
             </div>
 
             <div id="output-puzzle" class="mb-3"></div>
 
+        </div>
+    </div>
+
+    <div class="row print-hidden invisible" id="json-row">
+        <div class="col">
+            <h2><i class="bi bi-6-circle"></i> JSON Representation</h2>
+            <p>
+                Here is the JSON representation of the puzzle that you can use for programmatic access.
+                The JSON includes the grid layout, word positions, and puzzle configuration.
+            </p>
+            <textarea class="form-control" id="output-json" rows="10" readonly></textarea>
         </div>
     </div>
 
@@ -163,22 +162,6 @@ Zucchini
             </p>
             <div id="output-clues"></div>
 
-        </div>
-    </div>
-
-    <div class="row print-hidden invisible" id="json-row">
-        <div class="col">
-            <h2><i class="bi bi-6-circle"></i> JSON Representation</h2>
-            <p>
-                Here is the JSON representation of the puzzle that you can use for programmatic access.
-                The JSON includes the grid layout, word positions, and puzzle configuration.
-            </p>
-            <div class="mb-3">
-                <button type="button" class="btn btn-secondary" id="show-json-button">
-                    <i class="bi bi-code-square"></i> Show JSON
-                </button>
-            </div>
-            <textarea class="form-control" id="output-json" rows="10" readonly></textarea>
         </div>
     </div>
 
