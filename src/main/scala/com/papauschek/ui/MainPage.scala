@@ -37,10 +37,12 @@ class MainPage:
   private val refineRow = dom.document.getElementById("refine-row").asInstanceOf[Div]
   private val cluesRow = dom.document.getElementById("clues-row").asInstanceOf[Div]
   private val jsonRow = dom.document.getElementById("json-row").asInstanceOf[Div]
+  private val downloadJsonButton = dom.document.getElementById("download-json-button").asInstanceOf[Button]
   
   generateButton.addEventListener("click", { _ => generateSolution() })
   refineButton.addEventListener("click", { _ => refineSolution() })
   printButton.addEventListener("click", { _ => printSolution() })
+  downloadJsonButton.addEventListener("click", { _ => downloadJson() })
 
   /** read the words from the user interface and generate the puzzle in the background using web workers */
   def generateSolution(): Unit =
@@ -107,6 +109,24 @@ class MainPage:
   /** generate and display the JSON representation of the puzzle */
   private def generateJson(): Unit =
     outputJsonElement.value = HtmlRenderer.renderPuzzleJson(refinedPuzzle)
+
+  /** download the JSON representation of the puzzle as a file */
+  private def downloadJson(): Unit =
+    val jsonContent = outputJsonElement.value
+    if (jsonContent.nonEmpty) {
+      val firstWord = refinedPuzzle.words.headOption.getOrElse("puzzle")
+      val date = new scala.scalajs.js.Date()
+      val dateStr = f"${date.getFullYear().toInt}-${(date.getMonth() + 1).toInt}%02d-${date.getDate().toInt}%02d"
+      val filename = s"${firstWord}_${dateStr}.json"
+      
+      val blob = new org.scalajs.dom.Blob(scala.scalajs.js.Array(jsonContent), org.scalajs.dom.BlobPropertyBag(`type` = "application/json"))
+      val url = org.scalajs.dom.URL.createObjectURL(blob)
+      val link = dom.document.createElement("a").asInstanceOf[org.scalajs.dom.html.Anchor with org.scalajs.dom.raw.HTMLAnchorElement]
+      link.href = url
+      link.setAttribute("download", filename)
+      link.click()
+      org.scalajs.dom.URL.revokeObjectURL(url)
+    }
 
   /** normalize words and expand german umlauts */
   private def normalizeWord(word: String): String =
