@@ -239,15 +239,6 @@ object Puzzle:
 
   /** uses the given word list to try to fill remaining gaps in the puzzle
    * @param puzzle the puzzle for which we want to fill any gaps with additional words
-   * @param words a long list (dictionary) of words that should be used to fill any gaps.
-   *              for performance, not all words will be used if the list is very large */
-  def finalize(puzzle: Puzzle, words: List[String]): Puzzle = {
-    val sorted = Random.shuffle(words).take(10000).sortBy(- _.length)
-    generate(puzzle, sorted, Nil)
-  }
-
-  /** uses the given word list to try to fill remaining gaps in the puzzle
-   * @param puzzle the puzzle for which we want to fill any gaps with additional words
    * @param words a list of words that should be used to fill any gaps
    * @param tried list of words that were already tried, but could not be added to the puzzle */
   @tailrec private def generate(puzzle: Puzzle, words: List[String], tried: List[String]): Puzzle =

@@ -29,19 +29,15 @@ class MainPage:
   private val widthInputElement = dom.document.getElementById("width").asInstanceOf[Input]
   private val heightInputElement = dom.document.getElementById("height").asInstanceOf[Input]
 
-  private val languageSelect = dom.document.getElementById("language-select").asInstanceOf[Select]
-  private val refineButton = dom.document.getElementById("refine-button").asInstanceOf[Button]
   private val printButton = dom.document.getElementById("print-button").asInstanceOf[Button]
   private val replaceUnusedButton = dom.document.getElementById("replace-unused-button").asInstanceOf[Button]
 
   private val resultRow = dom.document.getElementById("result-row").asInstanceOf[Div]
-  private val refineRow = dom.document.getElementById("refine-row").asInstanceOf[Div]
   private val cluesRow = dom.document.getElementById("clues-row").asInstanceOf[Div]
   private val jsonRow = dom.document.getElementById("json-row").asInstanceOf[Div]
   private val downloadJsonButton = dom.document.getElementById("download-json-button").asInstanceOf[Button]
   
   generateButton.addEventListener("click", { _ => generateSolution() })
-  refineButton.addEventListener("click", { _ => refineSolution() })
   printButton.addEventListener("click", { _ => printSolution() })
   downloadJsonButton.addEventListener("click", { _ => downloadJson() })
   replaceUnusedButton.addEventListener("click", { _ => replaceWithUnusedWords() })
@@ -64,7 +60,6 @@ class MainPage:
           generateSpinner.classList.add("invisible")
           generateButton.classList.remove("invisible")
           resultRow.classList.remove("invisible")
-          refineRow.classList.remove("invisible")
           cluesRow.classList.remove("invisible")
           jsonRow.classList.remove("invisible")
           initialPuzzle = puzzles.maxBy(_.density)
@@ -79,12 +74,10 @@ class MainPage:
             |  ${e.getMessage}
             |</div>""".stripMargin
           resultRow.classList.add("invisible")
-          refineRow.classList.add("invisible")
           cluesRow.classList.add("invisible")
           jsonRow.classList.add("invisible")
       }
     }
-
 
   /** show the generated puzzle */
   def renderSolution(): Unit =
@@ -96,13 +89,6 @@ class MainPage:
     val extraWords = refinedPuzzle.words -- initialPuzzle.words
     resultInfoElement.innerHTML = HtmlRenderer.renderPuzzleInfo(refinedPuzzle, unusedWords)
     outputCluesElement.innerHTML = HtmlRenderer.renderClues(refinedPuzzle, extraWords)
-
-  /** add words from a chosen dictionary to the puzzle */
-  def refineSolution(): Unit =
-    val language = languageSelect.value
-    val words = Globals.window(language).filter(_.length >= 4)
-    refinedPuzzle = Puzzle.finalize(initialPuzzle, words.toList)
-    renderSolution()
 
   /** show the print dialog */
   def printSolution(): Unit =

@@ -114,14 +114,16 @@ Zucchini
                 </div>
             </div>
 
-            <div id="output-puzzle" class="mb-3"></div>
+            <div class="row justify-content-center">
+                <div id="output-puzzle" class="mb-3 col-lg-6"></div>
+            </div>
 
         </div>
     </div>
 
     <div class="row print-hidden invisible" id="json-row">
         <div class="col">
-            <h2><i class="bi bi-6-circle"></i> JSON Representation</h2>
+            <h2><i class="bi bi-4-circle"></i> JSON Representation</h2>
             <p>
                 Here is the JSON representation of the puzzle that you can use for programmatic access.
                 The JSON includes the grid layout, word positions, and puzzle configuration.
@@ -131,30 +133,7 @@ Zucchini
                     <i class="bi bi-download"></i> Download JSON
                 </button>
             </div>
-            <textarea class="form-control" id="output-json" rows="10" readonly></textarea>
-        </div>
-    </div>
-
-    <div class="row print-hidden invisible" id="refine-row">
-        <div class="col">
-
-            <h2><i class="bi bi-4-circle"></i> Add additional words from a dictionary <span class="text-muted">(Optional)</span></h2>
-            <p>You can add more words from a dictionary to your puzzle to fill any gaps. Choose from one of the available dictionaries:</p>
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <select class="form-control" id="language-select">
-                            <option value="en">English</option>
-                            <option value="de">German</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <button type="button" class="btn btn-primary" id="refine-button">Refine Puzzle</button>
-                </div>
-            </div>
-            <p>(click multiple times for different results)</p>
-
+            <textarea class="form-control" id="output-json" rows="30" readonly></textarea>
         </div>
     </div>
 
@@ -174,8 +153,6 @@ Zucchini
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-<script src="./data/croisee/german.js"></script>
-<script src="./data/croisee/english.js"></script>
 <script src="./js/main.js"></script>
 <script type="text/javascript">UIMain.main();</script>
 
